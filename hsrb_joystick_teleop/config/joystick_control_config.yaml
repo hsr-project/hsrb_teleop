@@ -1,0 +1,224 @@
+/**:
+  ros__parameters:
+    controls:
+      base_control:
+        type: base_control
+        button: 4
+        dead_zone: 0.2
+        voice_notification: true
+        axis:
+          x: 1
+          y: 0
+          yaw: 3
+        scale:
+          x: 0.1
+          y: 0.1
+          yaw: 0.5
+      base_control_fast:
+        type: base_control
+        button: [4, 6]
+        dead_zone: 0.5
+        voice_notification: false
+        axis:
+          x: 1
+          y: 0
+          yaw: 3
+        scale:
+          x: 0.38
+          y: 0.38
+          yaw: 1.0
+      endeffector_control:
+        type: endeffector_control
+        button: 5
+        hand_with_base_button: 7
+        dead_zone: 0.5
+        frame: base_footprint
+        voice_notification: true
+        axis:
+          x: 1
+          y: 0
+          z: 4
+        scale:
+          x: 0.08
+          y: 0.08
+          z: 0.08
+      endeffector_control_fast:
+        type: endeffector_control
+        button: [5, 6]
+        hand_with_base_button: 7
+        dead_zone: 0.5
+        frame: base_footprint
+        voice_notification: false
+        axis:
+          x: 1
+          y: 0
+          z: 4
+        scale:
+          x: 0.12
+          y: 0.12
+          z: 0.12
+      init_pose:
+        type: init_pose_control
+        button: 9
+        joint_names: ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint",
+                      "wrist_flex_joint", "wrist_roll_joint", "head_pan_joint", "head_tilt_joint"]
+        joint_positions: [0.01, -0.03, 0.0, -1.57, 0.0, 0.0, 0.0]
+        voice_notification: false
+      pickup1_pose:
+        type: pose_control
+        button: 2
+        enable_button: 8
+        joint_names: ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint",
+                      "wrist_flex_joint", "wrist_roll_joint", "head_pan_joint", "head_tilt_joint"]
+        joint_positions: [0.06, -2.38, 0.0,  0.81, 0.0, 0.0, -0.88]
+        voice_notification: false
+      suction_pose:
+        type: pose_control
+        button: 1
+        enable_button: 8
+        joint_names: ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint",
+                      "wrist_flex_joint", "wrist_roll_joint", "head_pan_joint", "head_tilt_joint"]
+        joint_positions: [0.06, -1.96, 0.0,  -0.44, -1.54, 0.0, -0.88]
+        voice_notification: false
+      pickup2_pose:
+        type: pose_control
+        button: 0
+        enable_button: 8
+        joint_names: ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint",
+                      "wrist_flex_joint", "wrist_roll_joint", "head_pan_joint", "head_tilt_joint"]
+        joint_positions: [0.06, -1.85, 0.0, -1.29, 0.0, 0.0, -0.88]
+        voice_notification: false
+      grasp_pose:
+        type: pose_control
+        button: 3
+        enable_button: 8
+        joint_names: ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint",
+                      "wrist_flex_joint", "wrist_roll_joint", "head_pan_joint", "head_tilt_joint"]
+        joint_positions: [0.2, -1.57, 0.0, 0.0, 0.0, 0.0, -0.32]
+        voice_notification: false
+      dynamic_storage_pose:
+        type: dynamic_storage_pose_control
+        button: 5
+        enable_button: 8
+        pose_save_button: 9
+        joint_names: ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint",
+                      "wrist_flex_joint", "wrist_roll_joint", "head_pan_joint", "head_tilt_joint"]
+        joint_positions: [0.01, -0.03, 0.0, -1.57, 0.0, 0.0, -0.88]
+        voice_notification: false
+      head_control:
+        type: multi_joint_control
+        button: 2
+        dead_zone: 0.3
+        voice_notification: true
+        head_pan_joint:
+          axis: 0
+          velocity: 0.5
+        head_tilt_joint:
+          axis: 1
+          velocity: 0.4
+      head_control_fast:
+        type: multi_joint_control
+        button: [2, 6]
+        dead_zone: 0.5
+        voice_notification: false
+        head_pan_joint:
+          axis: 0
+          velocity: 0.8
+        head_tilt_joint:
+          axis: 1
+          velocity: 0.6
+      wrist_control:
+        type: multi_joint_control
+        button: 1
+        dead_zone: 0.7
+        voice_notification: true
+        wrist_roll_joint:
+          axis: 0
+          velocity: -0.4
+        wrist_flex_joint:
+          axis: 1
+          velocity: 0.4
+      wrist_control_fast:
+        type: multi_joint_control
+        button: [1, 6]
+        dead_zone: 0.99
+        voice_notification: false
+        wrist_roll_joint:
+          axis: 0
+          velocity: -0.8
+        wrist_flex_joint:
+          axis: 1
+          velocity: 0.6
+      arm_control:
+        type: multi_joint_control
+        button: 0
+        dead_zone: 0.7
+        voice_notification: true
+        arm_roll_joint:
+          axis: 0
+          velocity: 0.4
+        arm_flex_joint:
+          axis: 1
+          velocity: 0.2
+      arm_control_fast:
+        type: multi_joint_control
+        button: [0, 6]
+        dead_zone: 0.99
+        voice_notification: false
+        arm_roll_joint:
+          axis: 0
+          velocity: 0.6
+        arm_flex_joint:
+          axis: 1
+          velocity: 0.4
+      lift_control:
+        type: single_joint_control
+        button: 3
+        voice_notification: true
+        arm_lift_joint:
+          axis: 1
+          velocity: 0.1
+      lift_control_fast:
+        type: single_joint_control
+        button: [3, 6]
+        voice_notification: false
+        arm_lift_joint:
+          axis: 1
+          velocity: 0.15
+      gripper_control:
+        type: single_joint_control
+        button: 7
+        voice_notification: true
+        hand_motor_joint:
+          axis: 3
+          velocity: -0.3
+      gripper_control_fast:
+        type: single_joint_control
+        button: [7, 6]
+        voice_notification: false
+        hand_motor_joint:
+          axis: 3
+          velocity: -0.5
+      suction_control:
+        type: suction_control
+        button: 11
+        voice_notification: false
+      hand_control:
+        type: hand_control
+        button: 12
+        force_enable_button: 7
+        open_angle_deg: 71
+        half_open_angle_deg: 20
+        voice_notification: false
+      autocharge_control:
+        type: autocharge_control
+        button: 7
+        enable_button: 8
+        voice_notification: false
+      drive_power_control:
+        type: drive_power_control
+        button: 10
+        enable_button: 8
+        voice_notification: false
+
+    assisted_voice_notification: false

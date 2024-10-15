@@ -1,0 +1,33 @@
+<package format="3">
+  <name>hsrb_pseudo_endeffector_controller</name>
+  <version>2.0.0</version>
+  <description>Pseudo endeffector controller</description>
+  <maintainer email="xr-hsr-support@mail.toyota.co.jp">HSR Support</maintainer>
+
+  <license>BSD 3-clause Clear License</license>
+
+  <author>Keisuke Takeshita</author>
+  <author>Tamaki Nishino</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tmc_manipulation_types</depend>
+  <depend>tmc_manipulation_util</depend>
+  <depend>tmc_robot_kinematics_model</depend>
+  <depend>tmc_utils</depend>
+  <depend>trajectory_msgs</depend>
+
+  <exec_depend>ros2launch</exec_depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>tmc_manipulation_tests</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

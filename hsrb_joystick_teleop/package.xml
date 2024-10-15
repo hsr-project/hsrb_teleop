@@ -1,0 +1,30 @@
+<package format="3">
+  <name>hsrb_joystick_teleop</name>
+  <version>2.0.0</version>
+  <description>HSR joystick teleop</description>
+
+  <maintainer email="xr-hsr-support@mail.toyota.co.jp">HSR Support</maintainer>
+
+  <license>BSD 3-clause Clear License</license>
+
+  <url type="website">None</url>
+
+  <author>Tomohiro Ono</author>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tmc_control_msgs</exec_depend>
+  <exec_depend>tmc_msgs</exec_depend>
+  <exec_depend>tmc_voice_msgs</exec_depend>
+  <exec_depend>trajectory_msgs</exec_depend>
+
+  <test_depend>python3-mock</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <test_depend>python3-pytest-mock</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

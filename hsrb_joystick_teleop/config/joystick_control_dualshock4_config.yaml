@@ -1,0 +1,74 @@
+/**:
+  ros__parameters:
+    controls:
+      base_control:
+        button: 4
+        axis:
+          yaw: 3
+      base_control_fast:
+        button: [4, 6]
+        axis:
+          yaw: 3
+      endeffector_control:
+        button: 5
+        hand_with_base_button: 7
+        axis:
+          z: 5
+      endeffector_control_fast:
+        button: [5, 6]
+        hand_with_base_button: 7
+        axis:
+          z: 5
+      init_pose:
+        button: 9
+      pickup1_pose:
+        button: 3
+        enable_button: 8
+      pickup2_pose:
+        button: 1
+        enable_button: 8
+      suction_pose:
+        button: 2
+        enable_button: 8
+      grasp_pose:
+        button: 0
+        enable_button: 8
+      dynamic_storage_pose:
+        button: 5
+        enable_button: 8
+        pose_save_button: 9
+      head_control:
+        button: 3
+      head_control_fast:
+        button: [3, 6]
+      wrist_control:
+        button: 2
+      wrist_control_fast:
+        button: [2, 6]
+      arm_control:
+        button: 1
+      arm_control_fast:
+        button: [1, 6]
+      lift_control:
+        button: 0
+      lift_control_fast:
+        button: [0, 6]
+      gripper_control:
+        button: 7
+        hand_motor_joint:
+          axis: 2
+      gripper_control_fast:
+        button: [7, 6]
+        hand_motor_joint:
+          axis: 2
+      suction_control:
+        button: 10
+      hand_control:
+        button: 11
+        force_enable_button: 7
+      autocharge_control:
+        button: 7
+        enable_button: 8
+      drive_power_control:
+        button: 12
+        enable_button: 8
