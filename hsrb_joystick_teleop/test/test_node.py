@@ -47,7 +47,10 @@ from hsrb_joystick_teleop.joystick_control import (
 from hsrb_joystick_teleop.joystick_control_node import main
 import pytest
 from rcl_interfaces.msg import ParameterValue
-from rcl_interfaces.srv import GetParameters
+from rcl_interfaces.srv import (
+    GetParameters,
+    SetParameters,
+)
 import rclpy
 from rclpy.action import ActionServer
 from rclpy.duration import Duration
@@ -1054,6 +1057,22 @@ def test_voice_notification(setup):
     # init_pose
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[6]] = 1
+    joy_ctrl.joy_pub.publish(msg)
+
+    is_sub, voice = joy_ctrl.talk_request_sub.wait_for_message(_SUB_TIMEOUT)
+    assert not is_sub
+
+    # Dynamic reconfigure
+    client = test_node.create_client(SetParameters, "joystick_control_node/set_parameters")
+    while not client.wait_for_service(timeout_sec=1.0):
+        pass
+
+    set_param_req = SetParameters.Request()
+    set_param_req.parameters = [Parameter("assisted_voice_notification", value=False).to_parameter_msg()]
+    _ = client.call(set_param_req)
+
+    msg.buttons = [0] * _BUTTON_NUM
+    msg.buttons[params[4]] = 1
     joy_ctrl.joy_pub.publish(msg)
 
     is_sub, voice = joy_ctrl.talk_request_sub.wait_for_message(_SUB_TIMEOUT)

@@ -44,6 +44,7 @@ from geometry_msgs.msg import (
     Twist,
     TwistStamped,
 )
+from hsrb_joystick_teleop.utils import DynamicParameter
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.duration import Duration
@@ -584,9 +585,8 @@ class JoystickControlManager(Node):
         self._talk_pub = self.create_publisher(
             Voice, "talk_request", 1)
 
-        self._voice_notification_on = _DEFAULT_VOICE_NOTIFICATION
-        if self.has_parameter("assisted_voice_notification"):
-            self._voice_notification_on = self.get_parameter("assisted_voice_notification")
+        self._voice_notification_on = DynamicParameter(
+            self, "assisted_voice_notification", _DEFAULT_VOICE_NOTIFICATION)
 
         self._pre_mode = "None"
 
@@ -645,7 +645,7 @@ class JoystickControlManager(Node):
 
     def voice_publish(self, sentence: str) -> None:
         """Dprial."""
-        if self._voice_notification_on:
+        if self._voice_notification_on.value:
             voice = Voice()
             voice.sentence = sentence.replace("controls.", "")
             if os.getenv("LANG") == "ja_JP.UTF-8":
