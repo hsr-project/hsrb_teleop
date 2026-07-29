@@ -1,6 +1,6 @@
 <package format="3">
   <name>hsrb_pseudo_endeffector_controller</name>
-  <version>2.0.3</version>
+  <version>3.0.0</version>
   <description>Pseudo endeffector controller</description>
   <maintainer email="xr-hsr-support@mail.toyota.co.jp">HSR Support</maintainer>
 

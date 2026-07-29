@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2024 TOYOTA MOTOR CORPORATION
+# Copyright (c) 2026 TOYOTA MOTOR CORPORATION
 # All rights reserved.
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the disclaimer
@@ -71,8 +71,8 @@ from tmc_voice_msgs.msg import Voice
 from trajectory_msgs.msg import JointTrajectory
 
 
-# Waiting time until the next command is received
-_PUB_WAIT = 0.6
+# Waiting time until the next instruction is received
+_PUB_WAIT = 1.0
 _SUB_TIMEOUT = 3.0
 _CONNECTION_TIMEOUT = 10.0
 _RATE = 10.0
@@ -302,7 +302,7 @@ def test_base_control(setup):
     assert 0 == twist.linear.x
     assert 0 == twist.angular.z
 
-    # Speed 0 if not exceeding deadband (normal mode)
+    # Speed is 0 if it does not exceed the dead zone (normal mode)
     msg.buttons[params[0]] = 1
     dead_zone = params[1]
     msg.axes = [0.0] * _AXES_NUM
@@ -316,7 +316,7 @@ def test_base_control(setup):
     assert 0 == twist.linear.x
     assert 0 == twist.angular.z
 
-    # Speed 0 if not exceeding deadband (high-speed mode)
+    # Speed is 0 if it does not exceed the dead zone (high-speed mode)
     msg.buttons = [0] * _BUTTON_NUM
     for idx in params_fast[0]:
         msg.buttons[idx] = 1
@@ -377,7 +377,7 @@ def test_single_joint_control(setup):
     assert joint_vel.name == [joint_name]
     assert pytest.approx(params_fast[2] * msg.axes[params_fast[1]]) == joint_vel.velocity[0]
 
-    # Do not publish when analog stick input is 0
+    # Do not publish when the analog stick input is 0
     msg.axes[params[1]] = 0.0
     joy_ctrl.joy_pub.publish(msg)
 
@@ -417,7 +417,7 @@ def test_multi_joint_control(setup):
          f"controls.head_control_fast.{joint_name2}.velocity"])
 
     # Manually create joystick msg
-    # Publish only single axis if only one axis input is present
+    # Publish only for the axis with input if only one axis has input
     msg = Joy()
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[0]] = 1
@@ -432,7 +432,7 @@ def test_multi_joint_control(setup):
     assert joint_vel.name == [joint_name2]
     assert pytest.approx(params[5] * msg.axes[params[3]]) == joint_vel.velocity[0]
 
-    # Publish both axes if both axis inputs are present
+    # Publish for both axes if both axes have input
     msg.axes[params[2]] = 0.6
     joy_ctrl.joy_pub.publish(msg)
 
@@ -458,8 +458,8 @@ def test_multi_joint_control(setup):
     assert pytest.approx(params_fast[4] * msg.axes[params_fast[2]]) == joint_vel.velocity[0]
     assert pytest.approx(params_fast[5] * msg.axes[params_fast[3]]) == joint_vel.velocity[1]
 
-    # Do not publish if not exceeding deadband (high-speed mode)
-    # Publish at normal mode speed if exceeding deadband in normal mode
+    # Do not publish if it does not exceed the dead zone (high-speed mode)
+    # Publish at normal mode speed if it exceeds the dead zone in normal mode
     dead_zone = params_fast[1]
     msg.axes = [0.0] * _AXES_NUM
     for idx in params_fast[2:4]:
@@ -474,7 +474,7 @@ def test_multi_joint_control(setup):
     assert pytest.approx(params[4] * msg.axes[params[2]]) == joint_vel.velocity[0]
     assert pytest.approx(params[5] * msg.axes[params[3]]) == joint_vel.velocity[1]
 
-    # Do not publish if not exceeding deadband (normal mode)
+    # Do not publish if it does not exceed the dead zone (normal mode)
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[0]] = 1
     dead_zone = params[1]
@@ -530,7 +530,7 @@ def test_hand_control(setup):
     assert is_sub
     sleep(test_node, _PUB_WAIT)
 
-    # Open hand halfway
+    # Half-open hand
     joy_ctrl.joy_pub.publish(msg)
 
     is_sub, joint_traj = joy_ctrl.gripper_control_sub.wait_for_message(_SUB_TIMEOUT)
@@ -539,7 +539,7 @@ def test_hand_control(setup):
     assert joint_traj.joint_names == ["hand_motor_joint"]
 
 
-# Test for servo ON/OFF control movement
+# Test for servo ON/OFF control
 def test_drive_power_control(setup):
     test_node = setup
     joy_ctrl = JoystickControlTest(test_node)
@@ -551,7 +551,7 @@ def test_drive_power_control(setup):
         ["controls.drive_power_control.button",
          "controls.drive_power_control.enable_button"])
 
-    # Servo OFF (initial value is ON)
+    # Servo OFF (default is ON)
     msg = Joy()
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[0]] = 1
@@ -580,7 +580,7 @@ def test_drive_power_control(setup):
 
 
 # FIXME
-# Test for suction movement
+# Test for suction operation
 # def test_suction_control(setup):
 #     test_node = setup
 #     joy_ctrl = JoystickControlTest(test_node)
@@ -611,7 +611,7 @@ def test_drive_power_control(setup):
 
 
 # FIXME
-# Test for automatic charging docking movement
+# Test for automatic charging docking operation
 # def test_auto_charge_dock_control(setup):
 #     test_node = setup
 #     joy_ctrl = JoystickControlTest(test_node)
@@ -648,7 +648,7 @@ def _test_pose_control(joint_ref, names, positions):
         assert pytest.approx(joint_ref.position[i]) == positions[i]
 
 
-# Test for initial posture transition movement
+# Test for initial posture transition operation
 def test_init_pose_control(setup):
     test_node = setup
     joy_ctrl = JoystickControlTest(test_node)
@@ -674,7 +674,7 @@ def test_init_pose_control(setup):
 
     # Reset posture (ignore if other buttons are pressed)
     msg.buttons[params[3]] = 1
-    # Insert axes because it becomes head_control when controls.pickup1_pose.button is pressed
+    # Insert axes because controls.pickup1_pose.button being pressed switches to head_control
     msg.axes = [0.0] * _AXES_NUM
     joy_ctrl.joy_pub.publish(msg)
 
@@ -682,7 +682,7 @@ def test_init_pose_control(setup):
     assert not is_sub
 
 
-# Test for default posture transition movement
+# Test for predefined posture transition operation
 def test_default_pose_control(setup):
     test_node = setup
     joy_ctrl = JoystickControlTest(test_node)
@@ -696,7 +696,7 @@ def test_default_pose_control(setup):
          "controls.pickup1_pose.joint_positions",
          "controls.pickup1_pose.enable_button"])
 
-    # Default posture transition
+    # Predefined posture transition
     msg = Joy()
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[0]] = 1
@@ -709,7 +709,7 @@ def test_default_pose_control(setup):
 
     # Do not publish if enable_button is not pressed
     msg.buttons[params[3]] = 0
-    # Insert axes because it becomes head_control when only controls.pickup1_pose.button is pressed
+    # Insert axes because only controls.pickup1_pose.button being pressed switches to head_control
     msg.axes = [0.0] * _AXES_NUM
     joy_ctrl.joy_pub.publish(msg)
 
@@ -717,7 +717,7 @@ def test_default_pose_control(setup):
     assert not is_sub
 
 
-# Test for dynamic saved posture transition movement
+# Test for dynamic saved posture transition operation
 def test_dynamic_storage_pose_control(setup):
     test_node = setup
     joy_ctrl = JoystickControlTest(test_node)
@@ -750,7 +750,7 @@ def test_dynamic_storage_pose_control(setup):
     joy_ctrl.joint_states_pub.publish(joint_ref)
     sleep(test_node, _PUB_WAIT)
 
-    # Save changed posture
+    # Save the changed posture
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[3]] = 1
     msg.buttons[params[4]] = 1
@@ -767,6 +767,9 @@ def test_dynamic_storage_pose_control(setup):
     assert is_sub
     _test_pose_control(joint_ref, params[1], joint_ref_save)
 
+    # Increase interval as the wait time for wait_for_message was insufficient for publishing interval
+    sleep(test_node, _PUB_WAIT)
+
     # Do not publish if enable_button is not pressed
     msg.buttons[params[3]] = 0
     joy_ctrl.joy_pub.publish(msg)
@@ -775,7 +778,7 @@ def test_dynamic_storage_pose_control(setup):
     assert not is_sub
 
 
-# Test for end-effector movement (excluding cart movement)
+# Test for end-effector operation (excluding cart movement)
 def test_endeffector_control(setup):
     test_node = setup
     joy_ctrl = JoystickControlTest(test_node)
@@ -831,8 +834,8 @@ def test_endeffector_control(setup):
     assert pytest.approx(params_fast[6] * msg.axes[params_fast[3]]) == twist_stamped.twist.linear.y
     assert pytest.approx(params_fast[7] * msg.axes[params_fast[4]]) == twist_stamped.twist.linear.z
 
-    # Speed 0 if not exceeding deadband (high-speed mode)
-    # Publish at normal mode speed if exceeding deadband in normal mode
+    # Speed is 0 if it does not exceed the dead zone (high-speed mode)
+    # Publish at normal mode speed if it exceeds the dead zone in normal mode
     dead_zone = params_fast[1]
     msg.axes = [0.0] * _AXES_NUM
     for idx in params_fast[2:5]:
@@ -846,7 +849,7 @@ def test_endeffector_control(setup):
     assert pytest.approx(params[6] * msg.axes[params_fast[3]]) == twist_stamped.twist.linear.y
     assert pytest.approx(params[7] * msg.axes[params_fast[4]]) == twist_stamped.twist.linear.z
 
-    # Do not publish if not exceeding deadband (normal mode)
+    # Do not publish if it does not exceed the dead zone (normal mode)
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[0]] = 1
     dead_zone = params[1]
@@ -859,7 +862,7 @@ def test_endeffector_control(setup):
     assert not is_sub
 
 
-# Test for end-effector movement (including cart movement)
+# Test for end-effector operation (including cart movement)
 def test_endeffector_with_base_control(setup):
     test_node = setup
     joy_ctrl = JoystickControlTest(test_node)
@@ -919,8 +922,8 @@ def test_endeffector_with_base_control(setup):
     assert pytest.approx(params_fast[6] * msg.axes[params_fast[3]]) == twist_stamped.twist.linear.y
     assert pytest.approx(params_fast[7] * msg.axes[params_fast[4]]) == twist_stamped.twist.linear.z
 
-    # Speed 0 if not exceeding deadband (high-speed mode)
-    # Publish at normal mode speed if exceeding deadband in normal mode
+    # Speed is 0 if it does not exceed the dead zone (high-speed mode)
+    # Publish at normal mode speed if it exceeds the dead zone in normal mode
     dead_zone = params_fast[1]
     msg.axes = [0.0] * _AXES_NUM
     for idx in params_fast[2:5]:
@@ -934,7 +937,7 @@ def test_endeffector_with_base_control(setup):
     assert pytest.approx(params[6] * msg.axes[params_fast[3]]) == twist_stamped.twist.linear.y
     assert pytest.approx(params[7] * msg.axes[params_fast[4]]) == twist_stamped.twist.linear.z
 
-    # Do not publish if not exceeding deadband (normal mode)
+    # Do not publish if it does not exceed the dead zone (normal mode)
     msg.buttons = [0] * _BUTTON_NUM
     msg.buttons[params[0]] = 1
     msg.buttons[params[8]] = 1
@@ -948,7 +951,7 @@ def test_endeffector_with_base_control(setup):
     assert not is_sub
 
 
-# Test if button elements are sorted and judged in order of largest number
+# Test if buttons are sorted and judged in descending order of the number of elements
 def test_sort(setup):
     test_node = setup
     joy_ctrl = JoystickControlTest(test_node)
@@ -983,7 +986,7 @@ def test_sort(setup):
     msg.axes[params[2]] = 1.0
     joy_ctrl.joy_pub.publish(msg)
 
-    # Priority is given to two button elements
+    # Priority is given to buttons with two elements
     is_sub, _ = joy_ctrl.command_velocity_sub.wait_for_message(_SUB_TIMEOUT)
     assert is_sub
 
@@ -993,7 +996,7 @@ def test_sort(setup):
         msg.buttons[idx] = 1
     joy_ctrl.joy_pub.publish(msg)
 
-    # Priority is given to two button elements
+    # Priority is given to buttons with two elements
     is_sub, _ = joy_ctrl.joint_velocity_sub.wait_for_message(_SUB_TIMEOUT)
     assert is_sub
 
@@ -1060,7 +1063,7 @@ def test_voice_notification(setup):
     is_sub, voice = joy_ctrl.talk_request_sub.wait_for_message(_SUB_TIMEOUT)
     assert not is_sub
 
-    # Dynamic notification setting
+    # Dynamic notification settings
     client = test_node.create_client(SetParameters, "joystick_control_node/set_parameters")
     while not client.wait_for_service(timeout_sec=1.0):
         pass

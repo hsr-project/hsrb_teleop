@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 TOYOTA MOTOR CORPORATION
+Copyright (c) 2026 TOYOTA MOTOR CORPORATION
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted (subject to the limitations in the disclaimer
@@ -38,7 +38,7 @@ DAMAGE.
 namespace {
 // Numerical IK allowable error
 const double kDefaultIKDelta = 1.0e-3;
-// Completion time during speed control
+// Interpolation time during speed control
 const double kDefaultVelocityDuration = 0.5;
 // Numerical IK maximum iteration count
 const int32_t kMaxItrIK = 1000;
@@ -46,7 +46,7 @@ const int32_t kMaxItrIK = 1000;
 const double kIKConvergeThreshold = 1.0e-10;
 // Threshold to determine if the command is interrupted [sec]
 const double kDefaultDiscontinuousPeriod = 0.5;
-// Default value for the hand frame name
+// Default value for the end-effector frame name
 const char* const kDefaultEndEffectorFrame = "hand_palm_link";
 // Default value for joint names used in IK
 const std::vector<std::string> kDefaultUseJoints = {"arm_lift_joint", "arm_flex_joint", "arm_roll_joint",
@@ -76,13 +76,13 @@ void CalcOriginToNextEnd(const Eigen::Affine3d& origin_to_end,
                          const Eigen::Affine3d& origin_to_frame,
                          const Eigen::Affine3d& transform,
                          Eigen::Affine3d& dst_origin_to_next_end) {
-  // Coordinate transformation from endeffector to reference frame
+  // Coordinate transformation from end-effector to reference frame
   Eigen::Affine3d end_to_frame = origin_to_end.inverse() * origin_to_frame;
-  // Align the origin
+  // Align origins
   end_to_frame.translation() << 0.0, 0.0, 0.0;
-  // Convert the transform of the reference frame origin to the endeffector origin
+  // Convert the transform of the reference frame origin to the end-effector origin
   Eigen::Affine3d end_on_transform = end_to_frame * transform * end_to_frame.inverse();
-  // Determine the next position of the endeffector
+  // Calculate the next position of the end-effector
   dst_origin_to_next_end = origin_to_end * end_on_transform;
 }
 }  // anonymous namespace
@@ -126,7 +126,7 @@ PseudoEndeffectorController::PseudoEndeffectorController(const rclcpp::NodeOptio
   success_pub_ = create_publisher<std_msgs::msg::Bool>("~/success", tmc_utils::ReliableVolatileQoS());
 
   // Create Subscriber
-  // Since command values are assumed to fly continuously, use BEST_EFFORT
+  // Assume command values are continuously sent, so use BEST_EFFORT
   command_velocity_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
       "~/command_velocity", tmc_utils::BestEffortQoS(),
       std::bind(&PseudoEndeffectorController::CommandVelocityCallback, this, std::placeholders::_1));
@@ -158,7 +158,7 @@ bool PseudoEndeffectorController::UpdateJointState() {
 
   // Convert the contents of odom to Eigen::Affine3d type
   Eigen::Affine3d origin_to_base;
-  // Only planar motion is assumed, so set everything except z to zero
+  // Only planar motion is assumed, so set values other than z to zero
   // Depending on the source of odom, x and y values may be included, causing unintended behavior with opposite eulerAngles results
   origin_to_base = Eigen::Quaterniond(latest_odom_->pose.pose.orientation.w,
                                       0.0,
@@ -175,9 +175,9 @@ bool PseudoEndeffectorController::UpdateJointState() {
   return true;
 }
 
-// Issue command from the current robot state
+// Issue command based on the current robot state
 void PseudoEndeffectorController::PublishJointCommand(const rclcpp::Time& stamp, double duration) const {
-  // Assume the posture of robot_ is updated
+  // Assume the robot_'s posture has been updated
   const tmc_manipulation_types::JointState joint_state_out = robot_->GetNamedAngle(use_joints_);
   const int32_t num_joints = use_joints_.size();
 
@@ -220,17 +220,18 @@ void PseudoEndeffectorController::PublishJointCommand(const rclcpp::Time& stamp,
   base_command_pub_->publish(base_trajectory);
 }
 
-// Calculate the robot's state after moving the hand
+// Calculate the robot's state after moving the end-effector
 bool PseudoEndeffectorController::CalcNextState(
     const tmc_manipulation_types::BaseMovementType& base_type,
     const Eigen::Affine3d& origin_to_next_end) {
   tmc_robot_kinematics_model::IKRequest ik_request(base_type);
+  ik_request.target_frames.resize(1);
+  ik_request.target_frames[0].frame_name = endeffector_frame_name_;
+  ik_request.target_frames[0].frame_to_end = Eigen::Affine3d::Identity();
+  ik_request.target_frames[0].ref_origin_to_end = origin_to_next_end;
   ik_request.use_joints = use_joints_;
-  ik_request.frame_to_end = Eigen::Affine3d::Identity();
-  ik_request.frame_name = endeffector_frame_name_;
   ik_request.origin_to_base = robot_->GetRobotTransform();
   ik_request.initial_angle = robot_->GetNamedAngle(use_joints_);
-  ik_request.ref_origin_to_end = origin_to_next_end;
   if (base_type == tmc_manipulation_types::kRotationZ) {
     ik_request.weight.resize(use_joints_.size() + 1);
     ik_request.weight.head(use_joints_.size()) = ik_arm_weights_;
@@ -241,16 +242,15 @@ bool PseudoEndeffectorController::CalcNextState(
     ik_request.weight.tail(3) = ik_base_weights_;
   }
 
-  tmc_manipulation_types::JointState joint_state_out;
-  Eigen::Affine3d origin_to_end_out;
-  const auto result = ik_solver_->Solve(ik_request, joint_state_out, origin_to_end_out);
+  std::vector<tmc_robot_kinematics_model::IKResponse> ik_responses;
+  const auto result = ik_solver_->Solve(ik_request, ik_responses);
   if (result != tmc_robot_kinematics_model::kSuccess) {
     return false;
   }
   return true;
 }
 
-// Common processing for command_velocity callback
+// Common processing for command_velocity callbacks
 void PseudoEndeffectorController::VelocityCallback(
     const geometry_msgs::msg::TwistStamped::SharedPtr& command,
     const tmc_manipulation_types::BaseMovementType& base_type) {
@@ -268,7 +268,7 @@ void PseudoEndeffectorController::VelocityCallback(
   }
 
   if (diff_period > discontinuous_period_ || command->header.frame_id != last_command_frame_) {
-    // Process as a new command => Process from current value
+    // Process as a new command => Process from the current value
     if (open_loop_control_) {
       if (!UpdateJointState()) {
         PublishIsSuccess(false);
@@ -285,7 +285,7 @@ void PseudoEndeffectorController::VelocityCallback(
       return;
     }
   } else {
-    // Process as continuous command values => Calculate ideal movement and process
+    // Process as a continuous command value => Calculate ideal movement and process
     Eigen::Affine3d desired_transform;
     TwistToTransform(last_command_value_, diff_period, desired_transform);
     CalcOriginToNextEnd(origin_to_end_, origin_to_base_, desired_transform, origin_to_end_);
@@ -320,7 +320,7 @@ void PseudoEndeffectorController::CommandVelocityWithBaseCallback(
   VelocityCallback(command, tmc_manipulation_types::kPlanar);
 }
 
-// Issue success or failure
+// Publish success or failure
 void PseudoEndeffectorController::PublishIsSuccess(bool result) {
   std_msgs::msg::Bool success;
   success.data = result;

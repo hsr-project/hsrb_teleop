@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 TOYOTA MOTOR CORPORATION
+Copyright (c) 2026 TOYOTA MOTOR CORPORATION
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted (subject to the limitations in the disclaimer
@@ -72,7 +72,7 @@ class PseudoEndeffectorController : public rclcpp::Node {
   void JointStatesCallback(const sensor_msgs::msg::JointState::SharedPtr state) { latest_joint_states_ = state; }
   void OdomCallback(const nav_msgs::msg::Odometry::SharedPtr odom) { latest_odom_ = odom; }
 
-  // Issue success or failure
+  // Publish success or failure
   void PublishIsSuccess(bool result);
 
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr command_velocity_sub_;
@@ -99,24 +99,24 @@ class PseudoEndeffectorController : public rclcpp::Node {
   // Joint weights for IK
   Eigen::VectorXd ik_arm_weights_;
   Eigen::VectorXd ik_base_weights_;
-  // Interpolation time during velocity control
+  // Interpolation time for velocity control
   double velocity_duration_;
 
   // Pose of the EndEffector
   Eigen::Affine3d origin_to_end_;
-  // Pose of the reference frame for command values
+  // Pose of the reference frame for the command values
   Eigen::Affine3d origin_to_base_;
   // Previous command values
   geometry_msgs::msg::Twist last_command_value_;
-  // Time when the previous command was received
+  // Timestamp of the previous command
   rclcpp::Time last_command_stamp_;
-  // Reference frame for the previous command
+  // Reference frame of the previous command
   std::string last_command_frame_;
-  // Threshold [sec] to determine if continuous commands have been interrupted
+  // Threshold [sec] to determine if continuous commands are interrupted
   double discontinuous_period_;
   // If true, do not feedback the current joint state when commands are not interrupted
   bool open_loop_control_;
-  // Issuance cycle [s]
+  // Publishing cycle [s]
   std::optional<double> publish_period_;
 
   Eigen::VectorXd GetWeightParameter(const std::string& parameter_name, uint32_t dof);

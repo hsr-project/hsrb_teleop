@@ -2,6 +2,15 @@
 Changelog for package hsrb_pseudo_endeffector_controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.0 (2026-06-29)
+-------------------
+* Migration to ROS2 jazzy
+* Contributors: Shigeo Tsuduki
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package hsrb_pseudo_endeffector_controller
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 2.0.3 (2025-12-04)
 -------------------
 * Replace each package's DynamicParameter with tmc_utils_py.parameters.DynamicParameter.

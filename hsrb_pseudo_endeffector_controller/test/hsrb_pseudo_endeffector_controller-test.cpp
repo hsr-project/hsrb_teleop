@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2024 TOYOTA MOTOR CORPORATION
+Copyright (c) 2026 TOYOTA MOTOR CORPORATION
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted (subject to the limitations in the disclaimer
@@ -267,7 +267,7 @@ TEST_F(PseudoEndeffectorControllerTest, PublishRate) {
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
   }
-  // Since it's only the issued amount, ideally it should be 10, but due to pub/sub timing, it might not be 10; it should stably be around 8
+  // Since it is only for the issued amount, the ideal is 10, but due to the timing of pub/sub, it may not be 10; it should stabilize around 8
   EXPECT_GT(arm_command_sub_->count(), 8);
   EXPECT_LE(arm_command_sub_->count(), 10);
 
@@ -281,7 +281,7 @@ TEST_F(PseudoEndeffectorControllerTest, PublishRate) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }
-  // Limited to 40Hz, ideally it should be 20, but as long as it's below 20 and reasonably close to 20, it's fine
+  // Limited to 40Hz, so the ideal is 20, but as long as it is below 20 and reasonably close to 20, it is acceptable
   EXPECT_GT(arm_command_sub_->count(), 15);
   EXPECT_LE(arm_command_sub_->count(), 20);
 }
@@ -291,7 +291,7 @@ TEST_F(PseudoEndeffectorControllerTest, NoRobotDescription) {
   EXPECT_ANY_THROW(server_node_ = std::make_shared<PseudoEndeffectorController>());
 }
 
-// Do not issue command if joints_states, etc., cannot be obtained
+// Do not issue commands if joints_states, etc., cannot be obtained
 TEST_F(PseudoEndeffectorControllerTest, NoRobotState) {
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
 
@@ -302,7 +302,7 @@ TEST_F(PseudoEndeffectorControllerTest, NoRobotState) {
   ValidateFailure();
 }
 
-// Non-existent frame
+// Nonexistent frame
 TEST_F(PseudoEndeffectorControllerTest, InvalidFrameName) {
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
   robot_state_pub_->ResetRobotState(std::bind(&PseudoEndeffectorControllerTest::SpinSome, this));
@@ -330,8 +330,8 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityOnHandFrame) {
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
   // Posture after 0.5 seconds
-  // Other axes also move slightly, so create expected values from output values
-  // Check if it rises 0.05 vertically (mainly lift)
+  // Since other axes also move slightly, create expected values from the output values
+  // Check if it rises 0.05 in the vertical direction (mainly lift)
   // Check if the wrist roll axis rotates -0.05
   EXPECT_DOUBLE_EQ(first_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(first_command.at("odom_x"), 0.0, kEpsilon);
@@ -363,7 +363,7 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityOnHandFrame) {
   EXPECT_NEAR(second_command.at("wrist_roll_joint"), -0.1 * 0.75, kEpsilon);
 }
 
-// Solve IK using current values even when command values are sent continuously
+// Solve IK using the current value even when command values are sent continuously
 TEST_F(PseudoEndeffectorControllerTest, CloseLoopControl) {
   default_options_.parameter_overrides().push_back(rclcpp::Parameter("open_loop_control", false));
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
@@ -378,7 +378,7 @@ TEST_F(PseudoEndeffectorControllerTest, CloseLoopControl) {
 
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
-  // Posture after 0.5 seconds, should raise the lift axis while extending the hand forward, cart does not move
+  // Posture after 0.5 seconds; the lift axis should rise while the hand moves forward, and the cart does not move
   EXPECT_DOUBLE_EQ(first_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(first_command.at("odom_x"), 0.0, kEpsilon);
   EXPECT_NEAR(first_command.at("odom_y"), 0.0, kEpsilon);
@@ -398,7 +398,7 @@ TEST_F(PseudoEndeffectorControllerTest, CloseLoopControl) {
 
   ASSERT_TRUE(IsSuccess());
   const auto second_command = ReceiveCommandTrajectory();
-  // Posture after 0.75 seconds, cart movement is fed back, so the arm hardly moves
+  // Posture after 0.75 seconds; since the cart's movement is fed back, the arm hardly moves
   EXPECT_DOUBLE_EQ(second_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(second_command.at("odom_x"), 0.1 * 0.75, kEpsilon);
   EXPECT_NEAR(second_command.at("odom_y"), 0.0, kEpsilon);
@@ -410,7 +410,7 @@ TEST_F(PseudoEndeffectorControllerTest, CloseLoopControl) {
   EXPECT_NEAR(second_command.at("wrist_roll_joint"), 0.0, kEpsilon);
 }
 
-// Solve IK without feedback of current values when command values are sent continuously
+// Solve IK without feedback of the current value when command values are sent continuously
 TEST_F(PseudoEndeffectorControllerTest, OpenLoopControl) {
   default_options_.parameter_overrides().push_back(rclcpp::Parameter("open_loop_control", true));
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
@@ -425,7 +425,7 @@ TEST_F(PseudoEndeffectorControllerTest, OpenLoopControl) {
 
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
-  // Posture after 0.5 seconds, should raise the lift axis while extending the hand forward, cart does not move due to no cart movement setting
+  // Posture after 0.5 seconds; the lift axis should rise while the hand moves forward, and the cart does not move due to the no-cart-movement setting
   EXPECT_DOUBLE_EQ(first_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(first_command.at("odom_x"), 0.0, kEpsilon);
   EXPECT_NEAR(first_command.at("odom_y"), 0.0, kEpsilon);
@@ -445,7 +445,7 @@ TEST_F(PseudoEndeffectorControllerTest, OpenLoopControl) {
 
   ASSERT_TRUE(IsSuccess());
   const auto second_command = ReceiveCommandTrajectory();
-  // Posture after 0.75 seconds, cart movement is not fed back + no cart movement setting, so extend the hand further
+  // Posture after 0.75 seconds; since the cart's movement is not fed back and the no-cart-movement setting is applied, the hand moves further forward
   EXPECT_DOUBLE_EQ(second_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(second_command.at("odom_x"), 0.0, kEpsilon);
   EXPECT_NEAR(second_command.at("odom_y"), 0.0, kEpsilon);
@@ -470,8 +470,8 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityOnFootprint) {
 
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
-  // Other axes also move slightly, so create expected values from output values
-  // Check if it rises 0.05 vertically (mainly lift)
+  // Since other axes also move slightly, create expected values from the output values
+  // Check if it rises 0.05 in the vertical direction (mainly lift)
   // Check if the wrist roll axis rotates -0.05
   EXPECT_DOUBLE_EQ(first_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(first_command.at("odom_x"), 0.0, kEpsilon);
@@ -496,7 +496,7 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityWithBaseOnHandFrame) {
 
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
-  // Cart moves (creating expected values from the answer)
+  // The cart moves (expected values are created from the answer)
   // Check if the cart (odom_x) moves close to 0.05
   EXPECT_DOUBLE_EQ(first_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(first_command.at("odom_x"), 0.046, kEpsilon);
@@ -521,7 +521,7 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityWithBaseOnFootprint) {
 
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
-  // Cart moves (creating expected values from the answer)
+  // The cart moves (expected values are created from the answer)
   // Check if the cart (odom_x) moves close to 0.05
   EXPECT_DOUBLE_EQ(first_command.at("time_from_start"), 0.5);
   EXPECT_NEAR(first_command.at("odom_x"), 0.046, kEpsilon);
@@ -534,7 +534,7 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityWithBaseOnFootprint) {
   EXPECT_NEAR(first_command.at("wrist_roll_joint"), 0.0, kEpsilon);
 }
 
-// Cart movement without IK fails
+// IK fails without cart movement
 TEST_F(PseudoEndeffectorControllerTest, CommandVelocityIKFailed) {
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
   robot_state_pub_->ResetRobotState(std::bind(&PseudoEndeffectorControllerTest::SpinSome, this));
@@ -547,7 +547,7 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityIKFailed) {
   ValidateFailure();
 }
 
-// Cart movement with IK fails
+// IK fails with cart movement
 TEST_F(PseudoEndeffectorControllerTest, CommandVelocityWithBaseIKFailed) {
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
   robot_state_pub_->ResetRobotState(std::bind(&PseudoEndeffectorControllerTest::SpinSome, this));
@@ -560,7 +560,7 @@ TEST_F(PseudoEndeffectorControllerTest, CommandVelocityWithBaseIKFailed) {
   ValidateFailure();
 }
 
-// Test with ik_delta=1000, velocity_duration=10
+// Test with ik_delta=1000 and velocity_duration=10
 TEST_F(PseudoEndeffectorControllerTest, WithParameter) {
   default_options_.parameter_overrides().push_back(rclcpp::Parameter("velocity_duration", 10.0));
   default_options_.parameter_overrides().push_back(rclcpp::Parameter("ik_delta", 1000.0));
@@ -574,8 +574,8 @@ TEST_F(PseudoEndeffectorControllerTest, WithParameter) {
 
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
-  // Confirm that the solution is a completely stationary state due to large ik_delta
-  // Confirm that the default value of time_from_start becomes 10.0
+  // Confirm that the solution is a completely stationary state due to the large ik_delta
+  // Confirm that the default value of time_from_start is 10.0
   EXPECT_DOUBLE_EQ(first_command.at("time_from_start"), 10.0);
   EXPECT_NEAR(first_command.at("odom_x"), 0.0, kEpsilon);
   EXPECT_NEAR(first_command.at("odom_y"), 0.0, kEpsilon);
@@ -587,7 +587,7 @@ TEST_F(PseudoEndeffectorControllerTest, WithParameter) {
   EXPECT_NEAR(first_command.at("wrist_roll_joint"), 0.0, kEpsilon);
 }
 
-// Test if cart weight is reflected
+// Test whether the cart weight is reflected
 TEST_F(PseudoEndeffectorControllerTest, IkBaseWeights) {
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
   robot_state_pub_->ResetRobotState(std::bind(&PseudoEndeffectorControllerTest::SpinSome, this));
@@ -612,12 +612,12 @@ TEST_F(PseudoEndeffectorControllerTest, IkBaseWeights) {
   ASSERT_TRUE(IsSuccess());
   const auto test_command = ReceiveCommandTrajectory();
 
-  // Instead of the cart moving, the hand should be extended forward with shoulder flex
+  // Instead of the cart moving, the hand should move forward using shoulder flex
   EXPECT_LT(test_command.at("odom_x"), default_command.at("odom_x"));
   EXPECT_LT(test_command.at("arm_flex_joint"), default_command.at("arm_flex_joint"));
 }
 
-// Test if arm weight is reflected
+// Test whether the arm weight is reflected
 TEST_F(PseudoEndeffectorControllerTest, IkArmWeights) {
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
   robot_state_pub_->ResetRobotState(std::bind(&PseudoEndeffectorControllerTest::SpinSome, this));
@@ -642,18 +642,18 @@ TEST_F(PseudoEndeffectorControllerTest, IkArmWeights) {
   ASSERT_TRUE(IsSuccess());
   const auto test_command = ReceiveCommandTrajectory();
 
-  // Since shoulder flex does not move, it should move with the cart
+  // Since shoulder flex does not move, the cart should move instead
   EXPECT_GT(test_command.at("odom_x"), default_command.at("odom_x"));
   EXPECT_GT(test_command.at("arm_flex_joint"), default_command.at("arm_flex_joint"));
 }
 
-// Test if anything other than odom yaw rotation is ignored
+// Test whether non-yaw rotations of odom are ignored
 TEST_F(PseudoEndeffectorControllerTest, IgnoreOdomPitchRoll) {
   server_node_ = std::make_shared<PseudoEndeffectorController>(default_options_);
   robot_state_pub_->ResetRobotState(std::bind(&PseudoEndeffectorControllerTest::SpinSome, this));
 
   // ros2 run tf2_ros static_transform_publisher --roll 0.1 --pitch 0.1 --yaw 1.0 --frame-id hoge --child-frame-id piyo
-  // Putting in the value of the rotation created
+  // Insert the rotation values created
   nav_msgs::msg::Odometry odom;
   odom.pose.pose.orientation.x = 0.019875;
   odom.pose.pose.orientation.y = 0.067737;
@@ -669,7 +669,7 @@ TEST_F(PseudoEndeffectorControllerTest, IgnoreOdomPitchRoll) {
 
   ASSERT_TRUE(IsSuccess());
   const auto first_command = ReceiveCommandTrajectory();
-  // Since it's a slight movement, odom_t should hardly change from 1.0
+  // Since it is a slight movement, odom_t should hardly change from 1.0
   EXPECT_NEAR(first_command.at("odom_t"), 1.0, 0.01);
 }
 
